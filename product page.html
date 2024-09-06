@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Website</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        html,
+        body {
+            height: 100%;
+            /* Ensure the body and html elements take up the full height */
+            margin: 0;
+            padding: 0;
+            background-image: url('images/background.jpg');
+            /* Path to your background image */
+            background-size: cover;
+            /* Ensures the image covers the entire screen */
+            background-position: center;
+            /* Center the background image */
+            background-repeat: no-repeat;
+            /* Prevent the image from repeating */
+            background-attachment: fixed;
+            /* Keep the background fixed when scrolling */
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        h1,
+        h2 {
+            margin-top: 20px;
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        #product-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        #cart {
+            display: none;
+        }
+
+        /* Product Style */
+        .product {
+            background-color: rgba(230, 230, 230, 0.8);
+            /* Light grey with slight transparency */
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            /* Added shadow */
+            margin: 15px;
+            padding: 20px;
+            width: 220px;
+            text-align: center;
+            transition: transform 0.3s, background-color 0.3s;
+            border: 1px solid #ccc;
+            /* Light grey border */
+        }
+
+        .product:hover {
+            transform: translateY(-5px);
+            background-color: rgba(240, 240, 240, 1);
+            /* Lighten on hover */
+        }
+
+        .product img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .product h3 {
+            color: #333;
+            font-weight: 700;
+        }
+
+        .product p {
+            color: #666;
+        }
+
+        .product button {
+            background-color: #606060;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .product button:hover {
+            background-color: #404040;
+        }
+
+        #cart-items {
+            background-color: #fff;
+            border-radius: 10px;
+            width: 60%;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .cart-item button {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .checkout-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .checkout-btn:hover {
+            background-color: #45a049;
+        }
+
+        nav {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        nav button {
+            background-color: #606060;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        nav button:hover {
+            background-color: #404040;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 40%;
+            /* Reduced width for a smaller modal */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 300px;
+            /* Limit the height of the image */
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content h3,
+        .modal-content p {
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .modal-content button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+
+        .close {
+            color: red;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #cart-items {
+                width: 90%;
+            }
+
+            .product {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Our Products</h1>
+
+    <!-- Navigation buttons to switch between Products and Cart -->
+    <nav>
+        <button onclick="showProducts()">View Products</button>
+        <button onclick="showCart()">View Cart</button>
+    </nav>
+
+    <!-- Product Section -->
+    <div id="product-list"></div>
+
+    <!-- Cart Section -->
+    <div id="cart">
+        <h2>Your Shopping Cart</h2>
+        <div id="cart-items"></div>
+        <p><strong>Total Cost: $<span id="total-cost">0.00</span></strong></p>
+        <button class="checkout-btn" onclick="checkout()">Checkout</button>
+    </div>
+
+    <!-- Modal for Product Details -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-product-name"></h3>
+            <img id="modal-product-image">
+            <p id="modal-product-price"></p>
+            <p id="modal-product-description"></p>
+            <button id="modal-add-to-cart" onclick="addToCartFromModal()">Add to Cart</button>
+        </div>
+    </div>
+
+    <script src="product page.js"></script>
+</body>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Website</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        /* Ensure the background image covers the entire screen */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-image: url('images/background.jpg');
+            /* Use your uploaded background image */
+            background-size: cover;
+            /* Ensures the image covers the entire screen */
+            background-position: center;
+            /* Center the background image */
+            background-repeat: no-repeat;
+            /* Prevent the image from repeating */
+            background-attachment: fixed;
+            /* Keep the background fixed when scrolling */
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        h1,
+        h2 {
+            margin-top: 20px;
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        #product-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        #cart {
+            display: none;
+        }
+
+        /* Product Style */
+        .product {
+            background-color: rgba(230, 230, 230, 0.8);
+            /* Light grey with slight transparency */
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            /* Added shadow */
+            margin: 15px;
+            padding: 20px;
+            width: 220px;
+            text-align: center;
+            transition: transform 0.3s, background-color 0.3s;
+            border: 1px solid #ccc;
+            /* Light grey border */
+        }
+
+        .product:hover {
+            transform: translateY(-5px);
+            background-color: rgba(240, 240, 240, 1);
+            /* Lighten on hover */
+        }
+
+        .product img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .product h3 {
+            color: #333;
+            font-weight: 700;
+        }
+
+        .product p {
+            color: #666;
+        }
+
+        .product button {
+            background-color: #606060;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .product button:hover {
+            background-color: #404040;
+        }
+
+        #cart-items {
+            background-color: #fff;
+            border-radius: 10px;
+            width: 60%;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .cart-item button {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .checkout-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .checkout-btn:hover {
+            background-color: #45a049;
+        }
+
+        nav {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        nav button {
+            background-color: #606060;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        nav button:hover {
+            background-color: #404040;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 40%;
+            /* Reduced width for a smaller modal */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 300px;
+            /* Limit the height of the image */
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content h3,
+        .modal-content p {
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .modal-content button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+
+        .close {
+            color: red;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #cart-items {
+                width: 90%;
+            }
+
+            .product {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Our Products</h1>
+
+    <!-- Navigation buttons to switch between Products and Cart -->
+    <nav>
+        <button onclick="showProducts()">View Products</button>
+        <button onclick="showCart()">View Cart</button>
+    </nav>
+
+    <!-- Product Section -->
+    <div id="product-list"></div>
+
+    <!-- Cart Section -->
+    <div id="cart">
+        <h2>Your Shopping Cart</h2>
+        <div id="cart-items"></div>
+        <p><strong>Total Cost: $<span id="total-cost">0.00</span></strong></p>
+        <button class="checkout-btn" onclick="checkout()">Checkout</button>
+    </div>
+
+    <!-- Modal for Product Details -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-product-name"></h3>
+            <img id="modal-product-image">
+            <p id="modal-product-price"></p>
+            <p id="modal-product-description"></p>
+            <button id="modal-add-to-cart" onclick="addToCartFromModal()">Add to Cart</button>
+        </div>
+    </div>
+
+    <script src="product page.js"></script>
+</body>
+
+</html>
+
+
+</html>
